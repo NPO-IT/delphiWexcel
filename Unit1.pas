@@ -3,10 +3,11 @@ unit Unit1;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComObj;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, ComObj;
+
 const
-xlCellTypeLastCell = $0000000B;
+  xlCellTypeLastCell = $0000000B;
+
 type
   TForm1 = class(TForm)
     Button1: TButton;
@@ -29,79 +30,80 @@ implementation
 procedure TForm1.Button1Click(Sender: TObject);
 var
 //счетчик для перебора строк
-i:integer;
+  i: integer;
 //счетчик для перебора столбцов
-j:integer;
+  j: integer;
 //переменная ссылка на объект Excel
-PExelObj:variant;
+  PExelObj: variant;
 //Переменная ссылка на книгу
-PExelBookCurrent:variant;
+  PExelBookCurrent: variant;
 //переменая ссылка на активную книгу
-PExelBookActive:variant;
+  PExelBookActive: variant;
 //Переменная ссылка на активный лист
-PExelSheetActive:variant;
+  PExelSheetActive: variant;
 //максимальное количество рядов и колонок на проверяемом листе
-maxRow,maxCol:integer;
+  maxRow, maxCol: integer;
 //строковая переменная для сохранение необходимой строки перезаписи
-currentStr:string;
-sss:string;
+  currentStr: string;
+  sss: string;
 begin
 //Создание оъекта Excel.Application. Объект Excel.
-PExelObj:=CreateOleObject('Excel.Application');
+  PExelObj := CreateOleObject('Excel.Application');
 //сделаем окно приложения Excel невидимым для увеличения скорости работы
-PExelObj.Visible:=false;
+  PExelObj.Visible := false;
 //Откроем Excel файл который нужно дополнить.
-if OpenDialog1.Execute then PExelObj.WorkBooks.Open(OpenDialog1.FileName);
-PExelBookCurrent:=PExelObj.WorkBooks;
+  if OpenDialog1.Execute then
+    PExelObj.WorkBooks.Open(OpenDialog1.FileName);
+  PExelBookCurrent := PExelObj.WorkBooks;
 //получаем доступ к последней открытой книге. Делаем её активной.
-PExelBookCurrent.Item[PExelObj.WorkBooks.Count].Activate;
+  PExelBookCurrent.Item[PExelObj.WorkBooks.Count].Activate;
 //получение ссылки на активную книгу.
-PExelBookActive:=PExelBookCurrent.Item[PExelObj.WorkBooks.Count];
+  PExelBookActive := PExelBookCurrent.Item[PExelObj.WorkBooks.Count];
 //Получение ссылки на первый лист активной книги
-PExelSheetActive:=PExelBookActive.Sheets.Item[1];
+  PExelSheetActive := PExelBookActive.Sheets.Item[1];
 
 //активируем последнюю ячейку на активном листе.
-PExelSheetActive.Cells.SpecialCells(xlCellTypeLastCell, EmptyParam).Activate;
+  PExelSheetActive.Cells.SpecialCells(xlCellTypeLastCell, EmptyParam).Activate;
 //максимальное количество строк . Метод ActiveCell подразумевает работу с объектом Excel
-maxRow:=PExelObj.ActiveCell.Row;
+  maxRow := PExelObj.ActiveCell.Row;
 //максимальное количество столбцов
-maxCol:=PExelObj.ActiveCell.Column;
+  maxCol := PExelObj.ActiveCell.Column;
 //производим запись в необходимую ячейку
-PExelSheetActive.Cells[1,maxCol+1]:='Входит в'; {[i,j]}
+  PExelSheetActive.Cells[1, maxCol + 1] := 'Входит в'; {[i,j]}
 
 //непосредственно алгоритм разбора и исправлений
-for i:=2 to maxRow do
+  for i := 2 to maxRow do
   begin
-    for j:=1 to maxCol do
-      begin
-        sss:='';
+    for j := 1 to maxCol do
+    begin
+      sss := '';
 
         //проверяем 3,4,5,6,7 ячейки в строке
-        if ( (PExelSheetActive.Cells[i,3].Text=sss)and(PExelSheetActive.Cells[i,4].Text=sss)and(PExelSheetActive.Cells[i,5].Text=sss)and(PExelSheetActive.Cells[i,6].Text=sss) ) then
-          begin
-            currentStr:=PExelSheetActive.Cells[i,1];
-          end
-        else
-          begin
-            PExelSheetActive.Cells[i,maxCol+1]:=currentStr;
-          end;
+      if ((PExelSheetActive.Cells[i, 3].Text = sss) and (PExelSheetActive.Cells[i, 4].Text = sss) and (PExelSheetActive.Cells[i, 5].Text = sss) and (PExelSheetActive.Cells[i, 6].Text = sss)) then
+      begin
+        currentStr := PExelSheetActive.Cells[i, 1];
+      end
+      else
+      begin
+        PExelSheetActive.Cells[i, maxCol + 1] := currentStr;
       end;
+    end;
   end;
 
 //сохранение активной книги под новым именем
-if SaveDialog1.Execute then
+  if SaveDialog1.Execute then
   begin
     //можно сохранить
-    PExelBookActive.SaveAs(form1.SaveDialog1.FileName+'.xlsx'{ExtractFileDir(ParamStr(0))+'/ReExcel.xlsx'});
+    PExelBookActive.SaveAs(form1.SaveDialog1.FileName + '.xlsx'{ExtractFileDir(ParamStr(0))+'/ReExcel.xlsx'});
     showMessage('Преобразование завершено успешно!');
     //закрытие активной книги
     PExelBookActive.Close;
     //закрытие приложения Excel
     PExelObj.Application.Quit;
-    PExelObj:=Unassigned;
+    PExelObj := Unassigned;
     halt;
   end
-else
+  else
   begin
     showMessage('Преобразование завершено не успешно!');
     //закрытие активной книги
@@ -111,3 +113,5 @@ else
 end;
 
 end.
+
+
